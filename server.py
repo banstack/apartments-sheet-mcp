@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+from operator import add
 
 import gspread
 from dotenv import load_dotenv
@@ -42,6 +43,18 @@ def saveListing(
     try:
         # TODO: Add duplicate check
         sheet = get_sheet()
+
+        # Duplicate check
+        existing = sheet.get_all_records()
+        for row in existing:
+            if (
+                address.lower() in row["Address"].lower()
+                or row["Address"].lower() in address
+            ):
+                return (
+                    f"Duplicate found : '{row['Address']} is already saved\n"
+                    f"Use update_listing to make changes, or confirm you want to save anyway."
+                )
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
         row = [
             address,
